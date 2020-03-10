@@ -19,6 +19,8 @@ errorCounter <- 0
 errorFiles <- character(0)
 
 # loop over entries
+jsonStrs <- character(0)
+
 for (idx in seq_along(exforFiles)) {
 
     cat("read file ", idx, " of ", length(exforFiles), "\n")
@@ -34,6 +36,8 @@ for (idx in seq_along(exforFiles)) {
     curEntry <- parseEntry(curText)
     firstSub <- NULL
     # loop over subentries
+    jsonStrs <- character(length(curEntry$SUBENT))
+
     for (idx2 in seq_along(curEntry$SUBENT)) {
         curSub <- curEntry$SUBENT[[idx2]]
         if (idx2==1) 
@@ -45,6 +49,17 @@ for (idx in seq_along(exforFiles)) {
             curSub <- transformSubent(firstSub,curSub)
         }
         jsonObj <- convToJSON(curSub)
-        doc_create(m, jsonObj, dbname = "exfor", docid = curSub$ID)
+        jsonStrs[idx2] <- jsonObj
+    }
+    if (length(jsonStrs) >= 200)
+    {
+        db_bulk_create(m, "exfor", jsonStrs)
+        jsonStrs <- character(0)
     }
 }
+
+if (length(jsonStrs) > 0) {
+    db_bulk_create(m, "exfor", jsonStrs)
+    jsonStrs <- character(0)
+}
+
