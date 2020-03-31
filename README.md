@@ -45,30 +45,30 @@ The following example shows access to EXFOR from Python when the container is ru
 from cloudant.client import CouchDB
 
 # setup of the client object to handle database requests
-client = CouchDB(‘admin’, ‘password’, url=’http://localhost:5984’, connect=True)
+client = CouchDB('admin', 'password', url='http://localhost:5984', connect=True)
 
 # object to specifically represent the EXFOR database
 # (in principle CouchDB can manage several databases in parallel)
-exfor = client[‘exfor’]
+exfor = client['exfor']
 
 # request subentry using its EXFOR ID
-subent = exfor[‘10502002’]
+subent = exfor['10502002']
 
 # subent is a normal python dictionary
 # here are some examples of available items in the dictionary, 
 # which mirror the structure of a EXFOR subentry
 
-subent[‘BIB’][‘REACTION’]
-subent[‘BIB’][‘AUTHOR’]
-subent[‘DATA’][‘DESCR’]
-subent[‘DATA’][‘UNIT’]
+subent['BIB']['REACTION']
+subent['BIB']['AUTHOR']
+subent['DATA']['DESCR']
+subent['DATA']['UNIT']
 
 # table is also a dictionary where names of the keys reflect column names
-subent[‘DATA’][‘TABLE’]
+subent['DATA']['TABLE']
 
 # access the DATA column
-subent[‘DATA’][‘TABLE’][‘DATA’]
+subent['DATA']['TABLE']['DATA']
 
 # access the ANG column, etc.
-subent[‘DATA’][‘TABLE’][‘ANG’]
+subent['DATA']['TABLE']['ANG']
 ```
