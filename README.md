@@ -4,7 +4,7 @@ This repository contains a Dockerfile and accompanying scripts to
 setup a Docker container with a CouchDB database that is filled
 with the EXFOR database.
 
-Note: The EXFOR entries are taken from [www.nucleardata.com][http://www.nucleardata.com]
+**Note**: The EXFOR entries are taken from [www.nucleardata.com](http://www.nucleardata.com)
 which lag behind the most up-to-date version of the EXFOR library.
 The most recent can be requested from the 
 [Nuclear Data Section of the IAEA](mailto:nds.contact-point@iaea.org).
