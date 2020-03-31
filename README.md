@@ -14,7 +14,8 @@ The most recent can be requested from the
 1. If not already done, install the Docker application.
    The Community edition is free of charge.
    Installation instructions for Windows, Mac and Linux can be found [here](https://docs.docker.com/install/).
-2. [Download](https://github.com/gschnabel/exfor-couchdb-docker/archive/master.zip) the content of this GitHub repository to a local folder.
+2. [Download](https://github.com/gschnabel/exfor-couchdb-docker/archive/master.zip) 
+   and unzip the content of this GitHub repository to a local folder.
 3. Open a terminal and change into this directory.
    Execute the command: `docker build -t exfor-couchdb .`
 
