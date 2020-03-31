@@ -36,8 +36,6 @@ for (idx in seq_along(exforFiles)) {
     curEntry <- parseEntry(curText)
     firstSub <- NULL
     # loop over subentries
-    jsonStrs <- character(length(curEntry$SUBENT))
-
     for (idx2 in seq_along(curEntry$SUBENT)) {
         curSub <- curEntry$SUBENT[[idx2]]
         if (idx2==1) 
@@ -48,13 +46,14 @@ for (idx in seq_along(exforFiles)) {
         {
             curSub <- transformSubent(firstSub,curSub)
         }
+        curSub[["_id"]] <- curSub[["ID"]]
         jsonObj <- convToJSON(curSub)
-        jsonStrs[idx2] <- jsonObj
-    }
-    if (length(jsonStrs) >= 200)
-    {
-        db_bulk_create(m, "exfor", jsonStrs)
-        jsonStrs <- character(0)
+        jsonStrs <- c(jsonStrs, jsonObj)
+        if (length(jsonStrs) >= 200)
+        {
+            db_bulk_create(m, "exfor", jsonStrs, as='json')
+            jsonStrs <- character(0)
+        }
     }
 }
 
