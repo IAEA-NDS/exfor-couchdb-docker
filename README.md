@@ -6,7 +6,7 @@ with the EXFOR database.
 
 **Note**: The EXFOR entries are taken from [www.nucleardata.com](http://www.nucleardata.com)
 which lag behind the most up-to-date version of the EXFOR library.
-The most recent can be requested from the 
+The most recent version can be requested from the 
 [Nuclear Data Section of the IAEA](mailto:nds.contact-point@iaea.org).
 
 ## Installation instructions
@@ -54,9 +54,9 @@ exfor = client[‘exfor’]
 # request subentry using its EXFOR ID
 subent = exfor[‘10502002’]
 
-# subnet is a normal python dictionary
-# some examples of available items, which mirror the structure
-# of a EXFOR subentry
+# subent is a normal python dictionary
+# here are some examples of available items in the dictionary, 
+# which mirror the structure of a EXFOR subentry
 
 subent[‘BIB’][‘REACTION’]
 subent[‘BIB’][‘AUTHOR’]
