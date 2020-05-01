@@ -1,10 +1,5 @@
 ### EXFOR-CouchDB
 
-**Important note:**
-This software is under development and comes without any guarantee of correctness nor any kind of warranty.
-The full legal note is provided at the end of this document.
-If you have ideas for development and want to contribute, get in touch with us.
-
 This repository contains a Dockerfile and accompanying scripts to
 setup a Docker container with a CouchDB database that is filled
 with the EXFOR database.
