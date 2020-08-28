@@ -99,7 +99,7 @@ curl -s -X POST --header "Content-Type: application/json" -d '{
        "selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}}, 
        "limit": 4,
        "fields": ["BIB.AUTHOR", "BIB.REACTION", "DATA.TABLE.DATA"]
-     }'
+     }' \
      http://admin:password@localhost:5984/exfor/_find | jq .
 ```
 
