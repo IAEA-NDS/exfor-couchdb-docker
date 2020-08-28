@@ -74,6 +74,34 @@ subent['DATA']['TABLE']['DATA']
 subent['DATA']['TABLE']['ANG']
 ```
 
+## Usage from command line
+
+For the following examples, we assume that the command line tools `jq` and `curl` are available.
+
+```shell
+# retrieve EXFOR subentry 11464003
+curl -X GET http://admin:password@localhost:5984/exfor/11464003 > result.json
+
+# extract specific fields
+jq -r '.BIB.AUTHOR' result.json
+jq -r '.DATA.TABLE.EN[]' result.json
+jq -r '.DATA.TABLE.DATA[]' result.json
+jq -r '.DATA.DESCR[]' result.json
+jq -r '.DATA.UNIT[]' result.json
+
+# find EXFOR subentries with participation of FERGUSON
+curl -s -X POST --header "Content-Type: application/json" \
+     -d '{"selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}}, "limit": 4 }' \
+     http://admin:password@localhost:5984/exfor/_find > result.json
+
+# extract only particular fields, e.g., AUTHOR, REACTION and DATA column:
+curl -s -X POST --header "Content-Type: application/json" -d '{
+       "selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}}, 
+       "limit": 4,
+       "fields": ["BIB.AUTHOR", "BIB.REACTION", "DATA.TABLE.DATA"]
+     }' \
+     http://admin:password@localhost:5984/exfor/_find | jq .
+```
 
 ## Legal note
 
