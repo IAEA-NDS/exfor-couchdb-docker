@@ -72,6 +72,27 @@ subent['DATA']['TABLE']['DATA']
 
 # access the ANG column, etc.
 subent['DATA']['TABLE']['ANG']
+
+# find subentries based on specific criteria
+# e.g., REACTION cross section should match a specific regular expression
+#       and EN and DATA column should exist
+selector = {
+        'BIB.REACTION': {
+            '$regex': r'\(26-FE-56\(N,[^)]+\)[^,]*,,SIG\)'
+        },
+        'DATA.TABLE.DATA': {'$exists': True},
+        'DATA.TABLE.EN': {'$exists': True}
+    }
+
+docs = exfor.get_query_result(selector)
+
+# retrieve information of specific EXFOR subentry
+specific_doc = docs[0][0]
+specific_doc['BIB']['REACTION']
+
+# cycle through results
+for curdoc in docs:
+    print(curdoc['BIB']['REACTION'])
 ```
 
 ## Usage from command line
@@ -102,6 +123,41 @@ curl -s -X POST --header "Content-Type: application/json" -d '{
      }' \
      http://admin:password@localhost:5984/exfor/_find | jq .
 ```
+
+## Usage in R
+
+Access to the CouchDB database is possible with the `sofa` package.
+```R
+library(sofa)
+
+# connect to database
+z <- Cushion$new(
+  host = "localhost",
+  transport = 'http',
+  port = 5984,
+  user = 'admin',
+  pwd = 'password'
+)
+
+# retrieve document with specific EXFOR ID
+docs <- db_query(z, dbname = "exfor", selector = list(`_id` = '10022010'))$docs
+
+# retrieve specific fields
+docs[[1]][['BIB']][['REACTION']]
+# or docs[[1]]$BIB$REACTION
+docs[[1]][['DATA']][['TABLE']]
+
+# search documents matching specific criteria
+docs <- db_query(z, dbname = "exfor", selector = list(
+  'DATA.TABLE.EN' = list('$exists' = TRUE),
+  'DATA.TABLE.DATA' = list('$exists' = TRUE)), limit=30)$docs
+
+# cycle through results
+for (curdoc in docs) {
+  print(curdoc[['BIB']][['REACTION']])
+}
+```
+
 
 ## Legal note
 
