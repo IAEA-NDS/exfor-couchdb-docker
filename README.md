@@ -1,8 +1,10 @@
 ### EXFOR-CouchDB - version 0.2.0
 
 This repository contains a Dockerfile and accompanying scripts to
-setup a Docker container with a CouchDB database that is filled
-with the EXFOR database.
+set up a Docker container with a CouchDB database filled
+with augmented subentries from the EXFOR library.
+CouchDB is a NoSQL document-oriented database with documents being JSON objects.
+The EXFOR to JSON conversion is achieved by the [exforParser](https://github.com/gschnabel/exforParser) package.
 
 **Important remarks**:
 
