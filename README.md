@@ -1,4 +1,4 @@
-### EXFOR-CouchDB - version 0.1.0
+### EXFOR-CouchDB - version 0.2.0
 
 This repository contains a Dockerfile and accompanying scripts to
 setup a Docker container with a CouchDB database that is filled
