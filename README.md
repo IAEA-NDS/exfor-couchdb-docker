@@ -82,7 +82,7 @@ From now on, if you want to use the EXFOR CouchDB database,
 execute the `docker run` instruction above. Importantly,
 for accessing the database, such as exemplified in the next
 section, the container needs to be up and running, which can
-can be checked by `docker ps`.
+be checked by `docker ps`.
 
 
 ## Usage in Python
