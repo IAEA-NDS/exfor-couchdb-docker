@@ -1,27 +1,18 @@
 FROM couchdb:3
 
+RUN apt update \
+    && apt install -y wget \
+    && apt install -y zip \
+    && apt install -y python3  \
+    && apt install pip -y \
+    && pip install requests==2.28.1  \
+    && pip install couchdb==1.2  \
+    && apt remove pip \
+    && pip cache purge  \
+    && apt clean  \
+    && rm -rf /tmp/*  \
+    && rm -rf ~/.cache
 
-# install R
-COPY ./install_R.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/install_R.sh \
-    && /usr/local/bin/install_R.sh
-
-# install EXFOR JSON Parser
-COPY ./install_exforParser.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/install_exforParser.sh \
-    && /usr/local/bin/install_exforParser.sh
-
-# initialize couchdb
-COPY ./prod.ini /opt/couchdb/etc/local.d/
-
-# install scripts for filling the database 
-COPY ./init_basedb.sh /usr/local/bin/
-COPY ./download_exfor.sh /usr/local/bin/
-COPY ./fill_couchdb.R /usr/local/bin/
-COPY ./setup_exfor_couchdb.sh /usr/local/bin
-RUN chmod +x /usr/local/bin/init_basedb.sh
-RUN chmod +x /usr/local/bin/download_exfor.sh
-RUN chmod +x /usr/local/bin/setup_exfor_couchdb.sh
-
-EXPOSE 5984
-CMD  /opt/couchdb/bin/couchdb
+COPY ./populate_exfor_couchdb.py ./usr/local/bin/ 
+COPY ./populate.sh ./usr/local/bin/
+RUN  chmod +x /usr/local/bin/populate.sh 

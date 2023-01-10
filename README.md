@@ -1,79 +1,122 @@
-### EXFOR-CouchDB - version 0.2.0
+### EXFOR-CouchDB - version 0.3.0
 
-This repository contains a Dockerfile and accompanying scripts to
-set up a Docker container with a CouchDB database filled
-with augmented subentries from the EXFOR library.
-CouchDB is a NoSQL document-oriented database with documents being JSON objects.
-The EXFOR to JSON conversion is achieved by the [exforParser](https://github.com/gschnabel/exforParser) package.
+This repository contains a Dockerfile that extends the
+[CouchDB Docker Image][couchdb-docker] with scripts to populate a
+CouchDB database with the data from the [EXFOR library][exfor-library].
+[CouchDB][couchdb-website] is a NoSQL document-oriented database with
+documents being JSON objects.
+The EXFOR to JSON format conversion is achieved by the [exfor-parserpy] package.
 
-**Important remarks**:
+Please note that the provided scripts pull the EXFOR data from
+[this GitHub repository][exfor-master], which may lag behind the
+latest version of the EXFOR library due to technical reasons.
+The most up-to-date information is available through the
+[EXFOR web retrieval system][exfor-web].
 
-- The EXFOR entries are taken from [www.nucleardata.com](http://www.nucleardata.com) which lag behind the most up-to-date version of the EXFOR library. The most recent version can be requested from the [Nuclear Data Section of the IAEA](mailto:nds.contact-point@iaea.org).
-- This repository is under development and comes without any guarantee of correctness, see *Legal Note* below for details.
-- If you have ideas for improvement or want to contribute, get in touch with us.
+If you have used this repository in a previous state, please note that
+due to a switch from the R [exforParser] package to the
+Python [exfor-parserpy] package, the structure of the
+JSON documents differs in some aspects. Most noteworthy,
+the field name `TABLE` of the `DATA` section got renamed to `DATA` and the
+information of the first subentries was not merged into subsequent ones.
+
+As this repository is still under development, the structure of the JSON
+documents may change in the future.
+
+[couchdb-docker]: https://hub.docker.com/_/couchdb/
+[exfor-parserpy]: https://github.com/iaea-nds/exfor-parserpy
+[exfor-library]: https://www.sciencedirect.com/science/article/abs/pii/S0090375214005171
+[exfor-master]: https://github.com/iaea-nds/exfor_master
+[exfor-web]: https://www-nds.iaea.org/exfor/
+[couchdb-website]: https://couchdb.apache.org/
+[docker-install]: https://docs.docker.com/install/
+[exforParser]: https://github.com/gschnabel/exforParser
+
 
 ## Installation instructions
 
+To install the extended CouchDB Docker image, perform the following steps:
+
 1. If not already done, install the Docker application.
    The Community edition is free of charge.
-   Installation instructions for Windows, Mac and Linux can be found [here](https://docs.docker.com/install/).
-2. [Download](https://github.com/gschnabel/exfor-couchdb-docker/archive/master.zip) 
+   Installation instructions for Windows, Mac and Linux can be found [here][docker-install].
+2. [Download](https://github.com/iaea-nds/exfor-couchdb-docker/archive/master.zip)
    and unzip the content of this GitHub repository to a local folder.
 3. Open a terminal and change into this directory.
    Execute the command: `docker build -t exfor-couchdb .`
+   You may need elevated privileges, e.g. `sudo`, to run this and
+   all following commands involving the `docker` instruction.
 
-After these steps, a Docker image named `exfor-couchdb` has been created.
-The following steps start a container with the CouchDB database application
-and fill it with EXFOR data.
+Now you can start up a container running the CouchDB server by executing
+```
+docker run -d \
+--name exfor-couchdb-container \
+-p 5984:5984 --rm \
+--mount source=exfor-data,target=/opt/couchdb/data \
+-e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password exfor-couchdb
+```
+This instruction will also create a Docker volume named `exfor-data`
+to ensure that the data written in the next step will persist
+even after stopping and removing the container.
+The CouchDB server will be available on port `5984` on the host.
 
-4. Launch a container:
-   `docker run -d -p 5984:5984 --name exfor-couchdb-cont exfor-couchdb`
-5. To initialize the CouchDB database with EXFOR, run:
-   `docker exec exfor-couchdb-cont /usr/local/bin/setup_exfor_couchdb.sh`
+Finally, to create a database with the EXFOR library on the CouchDB server, run
+```
+docker exec exfor-couchdb-container /usr/local/bin/populate.sh
+```
+This instruction will take tens of minutes to complete as it will
+download the EXFOR master files available [here][exfor-master],
+convert them using the [exfor-parserpy] package to the JSON format and
+store them in the database. By default, the name of the database will
+be `exfor`. You may append additional arguments to the
+`docker exec` command, which are documented in the header of the
+`populate.sh` script.
 
-After the completion of these steps, the API of the CouchDB database with EXFOR
-can be accessed over `http://localhost:5984`. 
-By default, the username `admin` and password `password` have to be used to
-effect modifications of the EXFOR database.
-These default credentials can be changed in the file `prod.ini` at the very end.
-This must be done before creating the Docker image in step 3 above.
+Once the `docker exec` command has finished, you may stop and remove the
+Docker container by
+```
+docker stop exfor-couchdb-container
+```
+
+From now on, if you want to use the EXFOR CouchDB database,
+execute the `docker run` instruction above. Importantly,
+for accessing the database, such as exemplified in the next
+section, the container needs to be up and running, which can
+can be checked by `docker ps`.
+
 
 ## Usage in Python
 
-Check that the 'cloudant' module is installed.
-If not, you can install it by executing `pip install cloudant`.
-The following example shows access to EXFOR from Python when the container is running.
+There are several possibilities to access the EXFOR CouchDB database
+from Python. In principle, the `requests` module can do the job.
+For more convenience, you may consider using dedicated packages,
+such as the `couchdb` or `cloudant` package. The following example
+makes use of the `cloudant` package.
 
 ```python
 from cloudant.client import CouchDB
 
-# setup of the client object to handle database requests
 client = CouchDB('admin', 'password', url='http://localhost:5984', connect=True)
-
-# object to specifically represent the EXFOR database
-# (in principle CouchDB can manage several databases in parallel)
 exfor = client['exfor']
-
-# request subentry using its EXFOR ID
 subent = exfor['10502002']
 
-# subent is a normal python dictionary
-# here are some examples of available items in the dictionary, 
-# which mirror the structure of a EXFOR subentry
-
 subent['BIB']['REACTION']
-subent['BIB']['AUTHOR']
-subent['DATA']['DESCR']
+# columns names of the data table
+subent['DATA']['DATA'].keys()
+# a dictionary that stores the units
+# associated with the columns
 subent['DATA']['UNIT']
 
-# table is also a dictionary where names of the keys reflect column names
-subent['DATA']['TABLE']
+# retrieving the column with measured data
+subent['DATA']['DATA']['DATA']
+# and the associated labels, such as the angle here
+subent['DATA']['DATA']['ANG']
 
-# access the DATA column
-subent['DATA']['TABLE']['DATA']
-
-# access the ANG column, etc.
-subent['DATA']['TABLE']['ANG']
+# the information about the author is stored in the
+# first subentry (first five digits denote entry id
+# and last three subentry id
+first_subent = exfor['10502001']
+first_subent['BIB']['AUTHOR']
 
 # find subentries based on specific criteria
 # e.g., REACTION cross section should match a specific regular expression
@@ -82,8 +125,8 @@ selector = {
         'BIB.REACTION': {
             '$regex': r'\(26-FE-56\(N,[^)]+\)[^,]*,,SIG\)'
         },
-        'DATA.TABLE.DATA': {'$exists': True},
-        'DATA.TABLE.EN': {'$exists': True}
+        'DATA.DATA.DATA': {'$exists': True},
+        'DATA.DATA.EN': {'$exists': True}
     }
 
 docs = exfor.get_query_result(selector)
@@ -106,22 +149,26 @@ For the following examples, we assume that the command line tools `jq` and `curl
 curl -X GET http://admin:password@localhost:5984/exfor/11464003 > result.json
 
 # extract specific fields
+jq -r '.DATA.DATA.EN[]' result.json
+jq -r '.DATA.DATA.DATA[]' result.json
+jq -r '.DATA.UNIT' result.json
+
+# to obtain the associated author, we need to access the
+# first subentry (the first five digits are the entry id and
+# the last three the subentry id.
+curl -X GET http://admin:password@localhost:5984/exfor/11464001 > result.json
 jq -r '.BIB.AUTHOR' result.json
-jq -r '.DATA.TABLE.EN[]' result.json
-jq -r '.DATA.TABLE.DATA[]' result.json
-jq -r '.DATA.DESCR[]' result.json
-jq -r '.DATA.UNIT[]' result.json
 
 # find EXFOR subentries with participation of FERGUSON
 curl -s -X POST --header "Content-Type: application/json" \
      -d '{"selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}}, "limit": 4 }' \
      http://admin:password@localhost:5984/exfor/_find > result.json
 
-# extract only particular fields, e.g., AUTHOR, REACTION and DATA column:
+# extract only particular fields, e.g., AUTHOR, DETECTOR and FACILITY column:
 curl -s -X POST --header "Content-Type: application/json" -d '{
-       "selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}}, 
+       "selector": {"BIB": {"AUTHOR": { "$regex": "FERGUSON"}}},
        "limit": 4,
-       "fields": ["BIB.AUTHOR", "BIB.REACTION", "DATA.TABLE.DATA"]
+       "fields": ["BIB.AUTHOR", "BIB.DETECTOR", "BIB.FACILITY"]
      }' \
      http://admin:password@localhost:5984/exfor/_find | jq .
 ```
@@ -134,11 +181,11 @@ library(sofa)
 
 # connect to database
 z <- Cushion$new(
-  host = "localhost",
-  transport = 'http',
-  port = 5984,
-  user = 'admin',
-  pwd = 'password'
+    host = "localhost",
+    transport = 'http',
+    port = 5984,
+    user = 'admin',
+    pwd = 'password'
 )
 
 # retrieve document with specific EXFOR ID
@@ -147,16 +194,16 @@ docs <- db_query(z, dbname = "exfor", selector = list(`_id` = '10022010'))$docs
 # retrieve specific fields
 docs[[1]][['BIB']][['REACTION']]
 # or docs[[1]]$BIB$REACTION
-docs[[1]][['DATA']][['TABLE']]
+docs[[1]][['DATA']][['DATA']]
 
 # search documents matching specific criteria
 docs <- db_query(z, dbname = "exfor", selector = list(
-  'DATA.TABLE.EN' = list('$exists' = TRUE),
-  'DATA.TABLE.DATA' = list('$exists' = TRUE)), limit=30)$docs
+    'DATA.DATA.EN' = list('$exists' = TRUE),
+    'DATA.DATA.DATA' = list('$exists' = TRUE)), limit=30)$docs
 
 # cycle through results
 for (curdoc in docs) {
-  print(curdoc[['BIB']][['REACTION']])
+    print(curdoc[['BIB']][['REACTION']])
 }
 ```
 
