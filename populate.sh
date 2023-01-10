@@ -98,6 +98,6 @@ unzip ${EXFOR_MASTER_COMMIT_ID}.zip &&
 python3 /usr/local/bin/populate_exfor_couchdb.py \
     --path ${EXFOR_LIBRARY_DIR} --ext .x4 \
     --couchdb_url http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:5984 \
-    --dbname ${DBNAME} &&
+    --dbname ${DBNAME}
 
 rm -rf /install_tmpdir
