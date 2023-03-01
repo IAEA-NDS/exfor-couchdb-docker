@@ -64,7 +64,11 @@ db = couch.create(dbname)
 
 for fp in filepaths:
     print(f'Read {fp}')
-    exfor_dic = read_exfor(fp)
+    try:
+        exfor_dic = read_exfor(fp)
+    except Exception:
+        print(f'ERROR: Could not parse {fp}')
+        continue
     t_exfor_dic = reactify(depointerfy(uncommonfy(unitfy(exfor_dic))))
     for entryid, entry in t_exfor_dic.items():
         for subentid, subent in entry.items():

@@ -1,4 +1,4 @@
-### EXFOR-CouchDB - version 0.3.0
+### EXFOR-CouchDB - version 0.4.0
 
 This repository contains a Dockerfile that extends the
 [CouchDB Docker Image][couchdb-docker] with scripts to populate a
@@ -7,11 +7,10 @@ CouchDB database with the data from the [EXFOR library][exfor-library].
 documents being JSON objects.
 The EXFOR to JSON format conversion is achieved by the [exfor-parserpy] package.
 
-Please note that the provided scripts pull the EXFOR data from
-[this GitHub repository][exfor-master], which may lag behind the
-latest version of the EXFOR library due to technical reasons.
-The most up-to-date information is available through the
-[EXFOR web retrieval system][exfor-web].
+As this repository is still under development, the structure of the JSON
+documents may change in the future. Please also note that the EXFOR content
+ingested into the database is from 2019. For up to date information please
+use the [EXFOR web retrieval system][exfor-web].
 
 If you have used this repository in a previous state, please note that
 due to a switch from the R [exforParser] package to the
@@ -19,9 +18,6 @@ Python [exfor-parserpy] package, the structure of the
 JSON documents differs in some aspects. Most noteworthy,
 the field name `TABLE` of the `DATA` section got renamed to `DATA` and the
 information of the first subentries was not merged into subsequent ones.
-
-As this repository is still under development, the structure of the JSON
-documents may change in the future.
 
 [couchdb-docker]: https://hub.docker.com/_/couchdb/
 [exfor-parserpy]: https://github.com/iaea-nds/exfor-parserpy
