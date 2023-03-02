@@ -36,7 +36,7 @@
 
 
 # Arguments that may be changed by the user
-EXFOR_PARSER_COMMIT_ID="2669680e049fec81c34890b7cbb1ee4fec5e04a1"
+EXFOR_PARSER_COMMIT_ID="f43479cbb361af6f705d9a463c84f8f4674ceac9"
 DBNAME="exfor"
 
 # Script starts here
@@ -98,7 +98,7 @@ fi
 # download exfor database
 mkdir ${EXFOR_MASTER_DIR} &&
 cd ${EXFOR_MASTER_DIR} &&
-declare -a exfor_urls &&
+declare -a exfor_tarfiles &&
 exfor_tarfiles+=("entries_10001-10535.tar.xz") &&
 exfor_tarfiles+=("entries_10536-11690.tar.xz") &&
 exfor_tarfiles+=("entries_11691-13569.tar.xz") &&

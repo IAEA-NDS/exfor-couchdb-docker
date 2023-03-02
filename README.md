@@ -1,4 +1,4 @@
-### EXFOR-CouchDB - version 0.4.0
+### EXFOR-CouchDB - version 0.5.0
 
 This repository contains a Dockerfile that extends the
 [CouchDB Docker Image][couchdb-docker] with scripts to populate a
