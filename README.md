@@ -8,8 +8,9 @@ documents being JSON objects.
 The EXFOR to JSON format conversion is achieved by the [exfor-parserpy] package.
 
 As this repository is still under development, the structure of the JSON
-documents may change in the future. Please also note that the EXFOR content
-ingested into the database is from 2019. For up-to-date information please
+documents may change in the future. The script to ingest EXFOR content
+into the database retrieves the EXFOR master files from [this repository][exfor-master].
+If you are looking for a graphical interface to the EXFOR library, you can
 use the [EXFOR web retrieval system][exfor-web].
 
 If you have used this repository in a previous state, please note that

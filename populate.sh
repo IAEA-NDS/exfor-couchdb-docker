@@ -36,7 +36,8 @@
 
 
 # Arguments that may be changed by the user
-EXFOR_PARSER_COMMIT_ID="f43479cbb361af6f705d9a463c84f8f4674ceac9"
+EXFOR_PARSER_COMMIT_ID="2669680e049fec81c34890b7cbb1ee4fec5e04a1"
+EXFOR_MASTER_COMMIT_ID="main"  # branch name or commit id
 DBNAME="exfor"
 
 # Script starts here
@@ -58,6 +59,9 @@ argument_parser () {
             if [[ $param == "exfor-parser-commit" ]]; then
                 EXFOR_PARSER_COMMIT_ID=$2
                 shift
+            elif [[ $param == "exfor-master-commit" ]]; then
+                EXFOR_MASTER_COMMIT_ID=$2
+                shift
             elif [[ $param == "user" ]]; then
                 COUCHDB_USER=$2
                 shift
@@ -77,7 +81,8 @@ argument_parser $@
 
 # Leave as is unless there is a good reason to change these strings
 EXFOR_PARSER_DIR="exfor-parserpy-${EXFOR_PARSER_COMMIT_ID}"
-EXFOR_MASTER_DIR="exfor_master"
+EXFOR_MASTER_DIR="exfor_master-${EXFOR_MASTER_COMMIT_ID}"
+EXFOR_LIBRARY_DIR="${EXFOR_MASTER_DIR}/exforall"
 
 mkdir /install_tmpdir
 
@@ -96,38 +101,10 @@ if [ "$?" -ne 0 ]; then
 fi
 
 # download exfor database
-mkdir ${EXFOR_MASTER_DIR} &&
-cd ${EXFOR_MASTER_DIR} &&
-declare -a exfor_tarfiles &&
-exfor_tarfiles+=("entries_10001-10535.tar.xz") &&
-exfor_tarfiles+=("entries_10536-11690.tar.xz") &&
-exfor_tarfiles+=("entries_11691-13569.tar.xz") &&
-exfor_tarfiles+=("entries_13570-13768.tar.xz") &&
-exfor_tarfiles+=("entries_13769-14239.tar.xz") &&
-exfor_tarfiles+=("entries_14240-20118.tar.xz") &&
-exfor_tarfiles+=("entries_20119-21773.tar.xz") &&
-exfor_tarfiles+=("entries_21774-22412.tar.xz") &&
-exfor_tarfiles+=("entries_22413-22921.tar.xz") &&
-exfor_tarfiles+=("entries_22922-23129.tar.xz") &&
-exfor_tarfiles+=("entries_23130-23250.tar.xz") &&
-exfor_tarfiles+=("entries_23251-23324.tar.xz") &&
-exfor_tarfiles+=("entries_23325-23415.tar.xz") &&
-exfor_tarfiles+=("entries_23416-A0099.tar.xz") &&
-exfor_tarfiles+=("entries_A0100-C1030.tar.xz") &&
-exfor_tarfiles+=("entries_C1031-D0487.tar.xz") &&
-exfor_tarfiles+=("entries_D0488-E1841.tar.xz") &&
-exfor_tarfiles+=("entries_E1842-F1045.tar.xz") &&
-exfor_tarfiles+=("entries_F1046-O0678.tar.xz") &&
-exfor_tarfiles+=("entries_O0679-V1002.tar.xz") &&
-for exfor_tarfile in "${exfor_tarfiles[@]}"; do
-    cur_exfor_url="http://www.nucleardata.com/storage/repos/exfor/${exfor_tarfile}"
-    echo downloading ${cur_exfor_url}
-    wget "${cur_exfor_url}"
-    tar -xvf ${exfor_tarfile}
-    rm ${exfor_tarfile}
-done &&
+wget https://github.com/IAEA-NDS/exfor_master/archive/${EXFOR_MASTER_COMMIT_ID}.zip &&
+unzip ${EXFOR_MASTER_COMMIT_ID}.zip &&
 python3 /usr/local/bin/populate_exfor_couchdb.py \
-    --path "$(pwd)" --ext .txt \
+    --path ${EXFOR_LIBRARY_DIR} --ext .x4 \
     --couchdb_url http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:5984 \
     --dbname ${DBNAME}
 
